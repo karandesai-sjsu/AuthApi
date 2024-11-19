@@ -344,3 +344,7 @@ exports.verifyForgotPasswordCode = async (req, res) => {
 		console.log(error);
 	}
 };
+
+exports.adminAccess = (req, res) => {
+	res.send('Admin access granted.');
+  };

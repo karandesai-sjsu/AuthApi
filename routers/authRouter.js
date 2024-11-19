@@ -1,12 +1,14 @@
 
 const express = require('express');
 const authController = require('../controllers/authController');
+const {roleMiddleware} = require('../middlewares/roleMiddleware');
 const { identifier } = require('../middlewares/indentification');
 const router = express.Router();
 
 router.post('/signup', authController.signup);
 router.post('/signin', authController.signin);
 router.post('/signout', identifier, authController.signout);
+router.get('/admin', roleMiddleware('admin'), authController.adminAccess);
 
 router.patch(
 	'/send-verification-code',
