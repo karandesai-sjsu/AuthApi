@@ -1,25 +1,37 @@
 const jwt = require('jsonwebtoken');
 
-const roleMiddleware = (requiredRole) => {
+exports.roleMiddleware = (requiredRole) => {
   return (req, res, next) => {
-    const token = req.cookies.token;
+    let token;
+
+    if (req.headers.client === 'not-browser') {
+      token = req.headers.authorization;
+    } else {
+      token = req.cookies['Authorization'];
+    }
+
     if (!token) {
-      return res.status(403).send('Access denied.');
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
+      const userToken = token.startsWith('Bearer%') ? token.slice(7) : token.split(' ')[1];
+      const jwtVerified = jwt.verify(userToken, process.env.TOKEN_SECRET);
 
-      if (req.user.role !== requiredRole) {
-        return res.status(403).send('Access denied not enough permissions.');
+      if (jwtVerified) {
+        req.user = jwtVerified;
+        console.log(req.user)
+        if (req.user.role.trim().toLowerCase() !== requiredRole.trim().toLowerCase()) {
+          return res.status(403).json({ success: false, message: 'Access denied. Not enough permissions.' });
+        }
+
+        next();
+      } else {
+        throw new Error('Error in the token');
       }
-
-      next();
     } catch (error) {
-      res.status(400).send('Invalid token.');
+      console.log(error);
+      res.status(400).json({ success: false, message: 'Invalid token.' });
     }
   };
 };
-
-module.exports = roleMiddleware;

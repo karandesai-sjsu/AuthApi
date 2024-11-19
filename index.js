@@ -3,10 +3,22 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-
+const rateLimit = require('express-rate-limit'); 
 const authRouter = require('./routers/authRouter');
 
 const app = express();
+
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, 
+	max: 100, 
+	message: "Too many requests, please try again later.",
+	standardHeaders: true, 
+	legacyHeaders: false,
+  });
+  
+  // Apply the rate limiting middleware globally
+  app.use(limiter);
 
 app.use(helmet());
 app.use(cors());

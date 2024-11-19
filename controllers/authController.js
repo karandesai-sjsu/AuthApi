@@ -65,6 +65,7 @@ exports.signin = async (req, res) => {
         userId: existingUser._id,
         email: existingUser.email,
         verified: existingUser.verified,
+		role: existingUser.role,
       },
       process.env.TOKEN_SECRET,
       {
@@ -346,5 +347,5 @@ exports.verifyForgotPasswordCode = async (req, res) => {
 };
 
 exports.adminAccess = (req, res) => {
-	res.send('Admin access granted.');
+	res.json({msg :'Admin access granted.'});
   };
